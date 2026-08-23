@@ -5,6 +5,9 @@ def compute_misery(unemployment_df, inflation_df, output_path=None):
     unemployment = unemployment_df.copy()
     inflation = inflation_df.copy()
 
+    unemployment["UNRATE"] = pd.to_numeric(unemployment["UNRATE"])
+    inflation["CPIAUCSL"] = pd.to_numeric(inflation["CPIAUCSL"])
+
     merged = unemployment[["observation_date", "UNRATE"]].merge(
         inflation[["observation_date", "CPIAUCSL"]],
         on="observation_date",

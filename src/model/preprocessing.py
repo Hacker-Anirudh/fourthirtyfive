@@ -10,6 +10,7 @@ if __package__ in (None, ""):
 from src.model.preprocessing_inflationrate import process_infrate
 from src.model.preprocessing_unrate import process_unrate
 from src.model.preprocessing_misery import compute_misery
+from src.model.preprocessing_merge import merge
 
 
 def _copy_if_present(source_path: Path, destination_path: Path) -> None:
@@ -38,7 +39,7 @@ def main(project_root=None):
         if generated_file.exists():
             generated_file.unlink()
 
-    _copy_if_present(historical_dir / "national_lean_midterms.csv", processed_dir / "national_lean_midterms.csv")
+    _copy_if_present(historical_dir / "national_lean_midterms.csv", processed_dir / "labels.csv")
     _copy_if_present(historical_dir / "state_pvi_midterms.csv", processed_dir / "state_pvi_midterms.csv")
     _copy_if_present(historical_dir / "pres_approval.csv", processed_dir / "pres_approval.csv")
     _copy_if_present(historical_dir / "generic_ballot_midterms_1978_2022.csv", processed_dir / "generic_ballot_midterms.csv")
@@ -56,6 +57,7 @@ def main(project_root=None):
     )
 
     compute_misery(unemployment_df, inflation_df, processed_dir / "misery.csv")
+    merge(processed_dir=processed_dir)
     return processed_dir
 
 

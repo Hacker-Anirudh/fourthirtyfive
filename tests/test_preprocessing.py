@@ -96,3 +96,31 @@ def test_process_unrate_defaults_to_project_root_output(tmp_path, monkeypatch):
     expected = project_root / "src" / "model" / "data" / "historical" / "processed" / "unrate.csv"
     assert expected.exists()
     assert pd.read_csv(expected)["observation_date"].tolist() == [2000, 2002]
+
+
+def test_merge_combines_yearly_feature_tables(tmp_path):
+    processed_dir = tmp_path / "processed"
+    processed_dir.mkdir()
+
+    pd.DataFrame({"observation_date": [2000, 2002], "misery_index": [4.0, 6.0]}).to_csv(
+        processed_dir / "misery.csv", index=False
+    )
+    pd.DataFrame({"observation_date": [2000, 2002], "approval": [55.0, 50.0]}).to_csv(
+        processed_dir / "pres_approval.csv", index=False
+    )
+    pd.DataFrame({"observation_date": [2000, 2002], "generic_ballot": [1.0, -1.0]}).to_csv(
+        processed_dir / "generic_ballot_midterms.csv", index=False
+    )
+
+    merge(
+        processed_dir=processed_dir,
+        misery_path="misery.csv",
+        approval_path="pres_approval.csv",
+        ballot_path="generic_ballot_midterms.csv",
+        output_path="features.csv",
+        year_column="observation_date",
+    )
+
+    result = pd.read_csv(processed_dir / "features.csv")
+    assert list(result.columns) == ["year", "misery_index", "approval", "generic_ballot"]
+    assert result["year"].tolist() == [2000, 2002]
