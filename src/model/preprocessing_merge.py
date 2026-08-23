@@ -28,6 +28,7 @@ def merge(
     misery = _normalize_year_column(pd.read_csv(processed_dir / misery_path), year_column)
     approval = _normalize_year_column(pd.read_csv(processed_dir / approval_path), year_column)
     ballot = _normalize_year_column(pd.read_csv(processed_dir / ballot_path), year_column)
+    ballot = ballot.rename(columns={"Margin" : "ballot"})
 
     merged = misery.copy()
     for data in [approval, ballot]:
