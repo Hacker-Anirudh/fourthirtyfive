@@ -1,4 +1,5 @@
 # !! Currently broken !!
+# No plans to fix, transitioning to ridge regression
 
 # Imports
 import pandas as pd
@@ -27,14 +28,27 @@ X = train_df[features]
 y = train_df[target]
 
 # Train the actual model
+print("Training model:")
 params = dict(
-    n_estimators=150
-    max_depth=4
-    learning_rate=0.07
-    subsample=1.0
-    colsample_bytree=1.0
-    reg_lambda=1.3
-    random_state=1984
+    max_depth=5,
+    n_estimators=125,
+    learning_rate=0.03,
+    subsample=0.9,
+    random_state=42,
 )
 
-model = 
+model = XGBRegressor(**params)
+model.fit(X,y)
+
+# Quick sanity check
+print("Done training model.")
+prediction_input = pd.DataFrame(
+    [[3, -5,3.3]],
+    columns=features,
+)
+trump = model.predict(prediction_input)
+print(f"Model predicts {trump}% national lean in 2026.")
+
+# Export model 
+model.save_model("prediction_model.json")
+print("Exported model to prediction_model.json")

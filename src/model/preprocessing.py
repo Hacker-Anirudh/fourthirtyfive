@@ -2,12 +2,13 @@ from pathlib import Path
 import shutil
 import sys
 
+import pandas as pd
+
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[2]
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
 
-from src.model.preprocessing_inflationrate import process_infrate
 from src.model.preprocessing_unrate import process_unrate
 from src.model.preprocessing_misery import compute_misery
 from src.model.preprocessing_merge import merge
@@ -43,6 +44,7 @@ def main(project_root=None):
     _copy_if_present(historical_dir / "state_pvi_midterms.csv", processed_dir / "state_pvi_midterms.csv")
     _copy_if_present(historical_dir / "pres_approval.csv", processed_dir / "pres_approval.csv")
     _copy_if_present(historical_dir / "generic_ballot_midterms_1978_2022.csv", processed_dir / "generic_ballot_midterms.csv")
+    _copy_if_present(historical_dir / "CPIAUCNS.csv", processed_dir / "CPIAUCNS.csv")
 
     needed_years = [1978, 1982, 1986, 1990, 1994, 1998, 2002, 2006, 2010, 2014, 2018, 2022]
     unemployment_df = process_unrate(
@@ -50,12 +52,8 @@ def main(project_root=None):
         needed_years,
         processed_dir / "unrate.csv",
     )
-    inflation_df = process_infrate(
-        historical_dir / "CPIAUCSL.csv",
-        needed_years,
-        processed_dir / "inflrate.csv",
-    )
 
+    inflation_df = pd.read_csv(processed_dir / "CPIAUCNS.csv")
     compute_misery(unemployment_df, inflation_df, processed_dir / "misery.csv")
     merge(processed_dir=processed_dir)
     return processed_dir
