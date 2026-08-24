@@ -1,7 +1,9 @@
+""" This combines the YoY inflation rate and the unemployment rate to get a basic "misery index" """
 import pandas as pd
 
 
 def compute_misery(unemployment_df, inflation_df, output_path=None):
+    """This does the heavy lifting!"""
     dem_years = [1978, 1994, 1998, 2010, 2014, 2022]
     unemployment = unemployment_df.copy()
     inflation = inflation_df.copy()
@@ -15,7 +17,8 @@ def compute_misery(unemployment_df, inflation_df, output_path=None):
         how="inner",
     )
     merged["misery_index"] = merged["UNRATE"] + merged["CPIAUCNS"]
-    merged = merged[["observation_date", "misery_index"]].sort_values("observation_date").reset_index(drop=True)
+    merged = merged[["observation_date",
+                     "misery_index"]].sort_values("observation_date").reset_index(drop=True)
     merged["misery_index"] = merged["misery_index"] - merged["misery_index"].mean()
 
     # Invert the sign for years with an incumbent Republican POTUS

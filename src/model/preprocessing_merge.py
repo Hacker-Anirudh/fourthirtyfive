@@ -1,3 +1,5 @@
+""" This merges everything into our final features.csv """
+
 from pathlib import Path
 
 import pandas as pd
@@ -19,6 +21,7 @@ def merge(
     output_path="features.csv",
     year_column="observation_date",
 ):
+    """ This function that does the heavy lifting. """
     if processed_dir is None:
         project_root = Path(__file__).resolve().parents[2]
         processed_dir = project_root / "src" / "model" / "data" / "historical" / "processed"
