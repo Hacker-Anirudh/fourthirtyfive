@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 # Set up the environment
 project_root = Path(__file__).resolve().parents[3]
 processed_dir = project_root / "src" / "model" / "data" / "historical" / "processed"
-artifacts = project_root / "src" / "model" / "model"
+artifacts = project_root / "src" / "model" / "inference"
 
 data_dir = Path(processed_dir)
 

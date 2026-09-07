@@ -7,7 +7,7 @@ def main():
     """ This is the main path of the program """
     project_root = Path(__file__).resolve().parents[3]
     scripts = [
-        project_root / "src" / "model" / "preprocessing.py",
+        project_root / "src" / "model" / "main.py",
         project_root / "src" / "model" / "model" / "regression_nationallean.py",
     ]
 

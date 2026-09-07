@@ -19,6 +19,7 @@ def compute_misery(unemployment_df, inflation_df, output_path=None):
     merged["misery_index"] = merged["UNRATE"] + merged["CPIAUCNS"]
     merged = merged[["observation_date",
                      "misery_index"]].sort_values("observation_date").reset_index(drop=True)
+    print(merged["misery_index"].mean())
     merged["misery_index"] = merged["misery_index"] - merged["misery_index"].mean()
 
     # Invert the sign for years with an incumbent Republican POTUS

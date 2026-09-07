@@ -1,1 +1,40 @@
+# Generated and local Python files
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Virtual environments and local configuration
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Test, coverage, and type-checker caches
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.ruff_cache/
+model.json
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Project-generated data and runtime outputs
 src/model/data/historical/processed/
+src/model/data/2026/
+src/model/inference/.key
+src/model/inference/current_stats
+src/model/inference/__pycache__/
