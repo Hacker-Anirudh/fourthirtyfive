@@ -1,23 +1,23 @@
-/// Gets current model feature values from FRED.
+// Gets current model feature values from FRED.
 import 'dart:convert';
 import 'dart:io';
 
-const String _fredBaseUrl = 'https://api.stlouisfed.org/fred/series/observations';
+const String _fredBaseUrl =
+    'https://api.stlouisfed.org/fred/series/observations';
 
 Future<String> _readApiKey() async {
   final keyFile = File('src/model/inference/.key');
   return (await keyFile.readAsString()).trim();
 }
 
-Future<Map<DateTime, double>> _getSeries(
-  String seriesId,
-  String apiKey,
-) async {
-  final uri = Uri.parse(_fredBaseUrl).replace(queryParameters: {
-    'series_id': seriesId,
-    'api_key': apiKey,
-    'file_type': 'json',
-  });
+Future<Map<DateTime, double>> _getSeries(String seriesId, String apiKey) async {
+  final uri = Uri.parse(_fredBaseUrl).replace(
+    queryParameters: {
+      'series_id': seriesId,
+      'api_key': apiKey,
+      'file_type': 'json',
+    },
+  );
 
   final request = await HttpClient().getUrl(uri);
   final response = await request.close();
@@ -29,8 +29,9 @@ Future<Map<DateTime, double>> _getSeries(
     );
   }
 
-  final observations = (jsonDecode(body) as Map<String, dynamic>)['observations']
-      as List<dynamic>;
+  final observations =
+      (jsonDecode(body) as Map<String, dynamic>)['observations']
+          as List<dynamic>;
   final values = <DateTime, double>{};
 
   for (final observation in observations) {
@@ -81,5 +82,5 @@ Future<double?> getGenballot() async => null;
 
 Future<void> main() async {
   final misery = await computeCurrentMisery();
-  print('Current misery index: $misery');
+  stderr.writeln('Current misery index: $misery');
 }
