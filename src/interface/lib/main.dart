@@ -176,18 +176,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemCount: forecast.states.length,
                       itemBuilder: (context, index) {
                         final state = forecast.states[index];
-                        final pollingWeight = _pollingWeight();
-                        final displayedForecast = _stateForecastValue(
+                        final currentPollingWeight = pollingWeight();
+                        final displayedForecast = stateForecastValue(
                           state,
-                          pollingWeight,
+                          currentPollingWeight,
                         );
-                        final accentColor = _stateCardColor(displayedForecast);
+                        final accentColor = stateCardColor(displayedForecast);
+                        final textColor = textColorForAccent(accentColor);
 
                         return Card(
                           elevation: 0,
-
+                          color: accentColor,
                           shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1.5),
+                            side: BorderSide(width: 1.5, color: accentColor),
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: Padding(
@@ -202,6 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         state.stateCode,
                                         style: theme.textTheme.headlineSmall
                                             ?.copyWith(
+                                              color: textColor,
                                               fontWeight: FontWeight.w700,
                                             ),
                                       ),
@@ -221,12 +223,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                             CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            _formatSignedPercent(
+                                            formatSignedPercent(
                                               displayedForecast,
                                             ),
                                             style: theme.textTheme.labelLarge
                                                 ?.copyWith(
-                                                  color: accentColor,
+                                                  color: textColor,
                                                   fontWeight: FontWeight.w700,
                                                 ),
                                           ),
@@ -236,7 +238,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             ),
                                             style: theme.textTheme.labelSmall
                                                 ?.copyWith(
-                                                  color: accentColor,
+                                                  color: textColor,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                           ),
@@ -249,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Text(
                                   'Polling avg',
                                   style: theme.textTheme.labelSmall?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                                    color: textColor,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -259,20 +261,22 @@ class _MyHomePageState extends State<MyHomePage> {
                                       : 'Unavailable',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
+                                    color: textColor,
                                   ),
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
                                   '2022 PVI',
                                   style: theme.textTheme.labelSmall?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                                    color: textColor,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _formatSignedPercent(state.pvi2022),
+                                  formatSignedPercent(state.pvi2022),
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
+                                    color: textColor,
                                   ),
                                 ),
                                 const SizedBox(height: 10),
@@ -297,41 +301,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
-  }
-
-  double _stateForecastValue(StateForecast state, double pollingWeight) {
-    if (state.pollingAverage == null) {
-      return state.forecast;
-    }
-
-    return (state.forecast * (1 - pollingWeight)) +
-        (state.pollingAverage! * pollingWeight);
-  }
-
-  // TODO: Add different colors for Tilt/Lean/Likely/Safe D/R
-
-  Color _stateCardColor(double forecast) {
-    final demorrep = forecast > 0;
-    forecast = forecast.abs();
-
-    if (forecast < 2) {
-      return demorrep ? const Color(0xFFB9D7FF) : const Color(0xFFF2B3BE);
-    } else if (forecast < 5) {
-      return demorrep ? const Color(0xFF4389E3) : const Color(0xFFCC2F4A);
-    } else if (forecast < 10) {
-      return demorrep ? const Color(0xFF0645B4) : const Color(0xFFAA0000);
-    } else {
-      return demorrep ? const Color(0xFF002B84) : const Color(0xFF800000);
-    }
-
-    return const Color(0xFF4B5563);
-  }
-
-  String _formatSignedPercent(double value) {
-    final suffix = value >= 0 ? '+' : '-';
-    final absoluteValue = value.abs();
-    final formatted = absoluteValue.toStringAsFixed(1);
-    return '$suffix$formatted%';
   }
 }
 

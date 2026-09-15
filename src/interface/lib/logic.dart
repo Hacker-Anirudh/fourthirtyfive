@@ -1,8 +1,8 @@
 part of 'main.dart';
 
 Future<_ForecastSnapshot> _loadForecastSnapshot() async {
-  final approvalRating = await _loadApprovalRating();
-  final ballot = await _loadBallot();
+  final approvalRating = await loadApprovalRating();
+  final ballot = await loadBallot();
 
   final inferenceService = InferenceService(
     config: const InferenceConfig(
@@ -19,8 +19,8 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
 
   final nationalLean = (result.data['prediction'] as num).toDouble();
 
-  final pollingRows = await _loadPollingRows();
-  final statePviRows = await _loadStatePviRows();
+  final pollingRows = await loadPollingRows();
+  final statePviRows = await loadStatePviRows();
 
   final states = <StateForecast>[];
   for (final row in statePviRows) {
@@ -45,7 +45,7 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
   );
 }
 
-Future<double> _loadApprovalRating() async {
+Future<double> loadApprovalRating() async {
   final currentStats = await rootBundle.loadString('inference/current_stats');
   final lines = LineSplitter.split(
     currentStats,
@@ -61,7 +61,7 @@ Future<double> _loadApprovalRating() async {
   return approval;
 }
 
-Future<double> _loadBallot() async {
+Future<double> loadBallot() async {
   final currentStats = await rootBundle.loadString('inference/current_stats');
   final lines = LineSplitter.split(
     currentStats,
@@ -77,7 +77,7 @@ Future<double> _loadBallot() async {
   return ballot;
 }
 
-Future<Map<String, double>> _loadPollingRows() async {
+Future<Map<String, double>> loadPollingRows() async {
   final raw = await rootBundle.loadString('inference/current_polling.csv');
   final rows = LineSplitter.split(raw)
       .map((line) => line.trim())
@@ -103,7 +103,8 @@ Future<Map<String, double>> _loadPollingRows() async {
   return polling;
 }
 
-Future<List<_StatePviRow>> _loadStatePviRows() async {
+// ignore: library_private_types_in_public_api
+Future<List<_StatePviRow>> loadStatePviRows() async {
   final raw = await rootBundle.loadString('inference/state_pvi_midterms.csv');
   final rows = LineSplitter.split(raw)
       .map((line) => line.trim())
@@ -130,7 +131,7 @@ Future<List<_StatePviRow>> _loadStatePviRows() async {
   return data;
 }
 
-double _pollingWeight() {
+double pollingWeight() {
   final forecastStartDate = DateTime(2026, 9, 12);
   final electionDay = DateTime(2026, 11, 3);
 
@@ -163,4 +164,39 @@ String forecastCatergory(double forecast) {
   } else {
     return 'Safe $dorr';
   }
+}
+
+double stateForecastValue(StateForecast state, double pollingWeight) {
+  if (state.pollingAverage == null) {
+    return state.forecast;
+  }
+
+  return (state.forecast * (1 - pollingWeight)) +
+      (state.pollingAverage! * pollingWeight);
+}
+
+Color stateCardColor(double forecast) {
+  final demorrep = forecast > 0;
+  forecast = forecast.abs();
+
+  if (forecast < 2) {
+    return demorrep ? const Color(0xFFB9D7FF) : const Color(0xFFF2B3BE);
+  } else if (forecast < 5) {
+    return demorrep ? const Color(0xFF4389E3) : const Color(0xFFCC2F4A);
+  } else if (forecast < 10) {
+    return demorrep ? const Color(0xFF0645B4) : const Color(0xFFAA0000);
+  } else {
+    return demorrep ? const Color(0xFF002B84) : const Color(0xFF800000);
+  }
+}
+
+Color textColorForAccent(Color accentColor) {
+  return accentColor.computeLuminance() > 0.5 ? Colors.black87 : Colors.white;
+}
+
+String formatSignedPercent(double value) {
+  final suffix = value >= 0 ? '+' : '-';
+  final absoluteValue = value.abs();
+  final formatted = absoluteValue.toStringAsFixed(1);
+  return '$suffix$formatted%';
 }
