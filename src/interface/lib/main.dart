@@ -311,12 +311,17 @@ class _MyHomePageState extends State<MyHomePage> {
   // TODO: Add different colors for Tilt/Lean/Likely/Safe D/R
 
   Color _stateCardColor(double forecast) {
-    if (forecast > 0) {
-      return const Color.fromARGB(255, 25, 0, 255);
-    }
+    final demorrep = forecast > 0;
+    forecast = forecast.abs();
 
-    if (forecast < 0) {
-      return const Color.fromARGB(255, 255, 0, 0);
+    if (forecast < 2) {
+      return demorrep ? const Color(0xFFB9D7FF) : const Color(0xFFF2B3BE);
+    } else if (forecast < 5) {
+      return demorrep ? const Color(0xFF4389E3) : const Color(0xFFCC2F4A);
+    } else if (forecast < 10) {
+      return demorrep ? const Color(0xFF0645B4) : const Color(0xFFAA0000);
+    } else {
+      return demorrep ? const Color(0xFF002B84) : const Color(0xFF800000);
     }
 
     return const Color(0xFF4B5563);
@@ -426,14 +431,6 @@ class _ForecastSummaryCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              _forecastCategory(nationalLean),
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
             const SizedBox(height: 14),
             Wrap(
               spacing: 10,
@@ -453,25 +450,6 @@ class _ForecastSummaryCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _forecastCategory(double forecast) {
-    final abs = forecast.abs();
-    final party = forecast >= 0 ? 'D' : 'R';
-
-    if (abs < 2) {
-      return 'Tilt $party';
-    }
-
-    if (abs < 5) {
-      return 'Lean $party';
-    }
-
-    if (abs < 10) {
-      return 'Likely $party';
-    }
-
-    return 'Safe $party';
   }
 
   String _formatSignedPercent(double value) {
