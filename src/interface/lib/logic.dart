@@ -4,6 +4,59 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
   final approvalRating = await loadApprovalRating();
   final ballot = await loadBallot();
 
+  final Map<String, String> stateCodeTranslation = {
+    'AL': 'Alabama',
+    'AK': 'Alaska',
+    'AZ': 'Arizona',
+    'AR': 'Arkansas',
+    'CA': 'California',
+    'CO': 'Colorado',
+    'CT': 'Connecticut',
+    'DE': 'Delaware',
+    'FL': 'Florida',
+    'GA': 'Georgia',
+    'HI': 'Hawaii',
+    'ID': 'Idaho',
+    'IL': 'Illinois',
+    'IN': 'Indiana',
+    'IA': 'Iowa',
+    'KS': 'Kansas',
+    'KY': 'Kentucky',
+    'LA': 'Louisiana',
+    'ME': 'Maine',
+    'MD': 'Maryland',
+    'MA': 'Massachusetts',
+    'MI': 'Michigan',
+    'MN': 'Minnesota',
+    'MS': 'Mississippi',
+    'MO': 'Missouri',
+    'MT': 'Montana',
+    'NE': 'Nebraska',
+    'NV': 'Nevada',
+    'NH': 'New Hampshire',
+    'NJ': 'New Jersey',
+    'NM': 'New Mexico',
+    'NY': 'New York',
+    'NC': 'North Carolina',
+    'ND': 'North Dakota',
+    'OH': 'Ohio',
+    'OK': 'Oklahoma',
+    'OR': 'Oregon',
+    'PA': 'Pennsylvania',
+    'RI': 'Rhode Island',
+    'SC': 'South Carolina',
+    'SD': 'South Dakota',
+    'TN': 'Tennessee',
+    'TX': 'Texas',
+    'UT': 'Utah',
+    'VT': 'Vermont',
+    'VA': 'Virginia',
+    'WA': 'Washington',
+    'WV': 'West Virginia',
+    'WI': 'Wisconsin',
+    'WY': 'Wyoming',
+  };
+
   final inferenceService = InferenceService(
     config: const InferenceConfig(
       modelPath: 'inference/model.json',
@@ -25,12 +78,13 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
   final states = <StateForecast>[];
   for (final row in statePviRows) {
     final calibration = row.pvi2022 + nationalLean;
+    final stateCode = row.stateCode;
     states.add(
       StateForecast(
-        stateCode: row.stateCode,
+        stateCode: stateCodeTranslation[stateCode] ?? stateCode,
         pvi2022: row.pvi2022,
         forecast: calibration,
-        pollingAverage: pollingRows[row.stateCode],
+        pollingAverage: pollingRows[stateCode],
       ),
     );
   }
