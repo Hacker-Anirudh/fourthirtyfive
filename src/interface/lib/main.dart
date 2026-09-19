@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as html_parser;
 import 'inference.dart';
 
 part 'logic.dart';
@@ -111,24 +113,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.error_outline, size: 32),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Unable to load forecast data.',
-                            style: theme.textTheme.titleMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '${snapshot.error}',
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: () {
+                        showElectionPopup(
+                          context,
+                          '2026_United_States_Senate_election_in_Texas',
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.error_outline, size: 32),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Unable to load forecast data.',
+                              style: theme.textTheme.titleMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${snapshot.error}',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -187,100 +198,111 @@ class _MyHomePageState extends State<MyHomePage> {
                         return Card(
                           elevation: 0,
                           color: accentColor,
+                          clipBehavior: Clip.antiAlias,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(width: 1.5, color: accentColor),
                             borderRadius: BorderRadius.circular(18),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        state.stateCode,
-                                        style: theme.textTheme.headlineSmall
-                                            ?.copyWith(
-                                              color: textColor,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                          999,
+                          child: InkWell(
+                            onTap: () {
+                              showElectionPopup(
+                                context,
+                                '2026_United_States_Senate_election_in_${state.stateCode}',
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          state.stateCode,
+                                          style: theme.textTheme.headlineSmall
+                                              ?.copyWith(
+                                                color: textColor,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                         ),
                                       ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            formatSignedPercent(
-                                              displayedForecast,
-                                            ),
-                                            style: theme.textTheme.labelLarge
-                                                ?.copyWith(
-                                                  color: textColor,
-                                                  fontWeight: FontWeight.w700,
-                                                ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            999,
                                           ),
-                                          Text(
-                                            forecastCatergory(
-                                              displayedForecast,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              formatSignedPercent(
+                                                displayedForecast,
+                                              ),
+                                              style: theme.textTheme.labelLarge
+                                                  ?.copyWith(
+                                                    color: textColor,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                             ),
-                                            style: theme.textTheme.labelSmall
-                                                ?.copyWith(
-                                                  color: textColor,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                        ],
+                                            Text(
+                                              forecastCatergory(
+                                                displayedForecast,
+                                              ),
+                                              style: theme.textTheme.labelSmall
+                                                  ?.copyWith(
+                                                    color: textColor,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Polling avg',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: textColor,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Polling avg',
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: textColor,
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  state.pollingAverage != null
-                                      ? state.pollingAverage!.toStringAsFixed(1)
-                                      : 'Unavailable',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: textColor,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    state.pollingAverage != null
+                                        ? state.pollingAverage!.toStringAsFixed(
+                                            1,
+                                          )
+                                        : 'Unavailable',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  '2022 PVI',
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: textColor,
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    '2022 PVI',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: textColor,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  formatSignedPercent(state.pvi2022),
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: textColor,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    formatSignedPercent(state.pvi2022),
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                              ],
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
                             ),
                           ),
                         );

@@ -254,3 +254,83 @@ String formatSignedPercent(double value) {
   final formatted = absoluteValue.toStringAsFixed(1);
   return '$suffix$formatted%';
 }
+
+Future<String> fetchInfoBox(String pageTitle) async {
+  final uri = Uri.parse(
+    'https://en.wikipedia.org/w/api.php?action=parse&page=$pageTitle&prop=text&format=json&origin=*',
+  );
+  final response = await http.get(
+    uri,
+    headers: {'User-Agent': 'FourThirtyFiveApp/1.0 (thenasaplusit@proton.me)'},
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    final rawhtml = data['parse']['text']['*'];
+
+    final document = html_parser.parse(rawhtml);
+    final infobox = document.querySelector('table.infobox');
+
+    if (infobox != null) {
+      return infobox.outerHtml;
+    } else {
+      throw Exception("No infobox found");
+    }
+  } else {
+    throw Exception('Failed to fetch page');
+  }
+}
+
+void showElectionPopup(BuildContext context, String pageTitle) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        contentPadding: const EdgeInsets.all(12.0),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                width: 550,
+                child: FutureBuilder(
+                  future: fetchInfoBox(pageTitle),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(
+                        width: 550,
+                        child: Center(child: LinearProgressIndicator()),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Padding(padding: const EdgeInsets.all(16.0));
+                    } else if (snapshot.hasData) {
+                      return SingleChildScrollView(
+                        child: HtmlWidget(
+                          snapshot.data!,
+                          baseUrl: Uri.parse('https://en.wikipedia.org'),
+                        ),
+                      );
+                    } else {
+                      return const Text('Nothing found here!');
+                    }
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 550,
+                child: SelectableText(
+                  'Data sourced from https://en.wikipedia.org/wiki/$pageTitle\n\nCC BY-SA 4.0 license',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
