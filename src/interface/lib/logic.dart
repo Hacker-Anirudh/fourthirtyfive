@@ -77,7 +77,7 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
 
   final states = <StateForecast>[];
   for (final row in statePviRows) {
-    final calibration = row.pvi2022 + nationalLean;
+    final calibration = (row.pvi2022 * 2) + nationalLean;
     final stateCode = row.stateCode;
     states.add(
       StateForecast(
