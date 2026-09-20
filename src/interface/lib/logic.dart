@@ -191,18 +191,18 @@ double pollingWeight() {
 
   final totalDays = electionDay.difference(forecastStartDate).inDays;
   if (totalDays <= 0) {
-    return 0.7;
+    return 0.9;
   }
 
   final now = DateTime.now();
   if (now.isBefore(forecastStartDate)) {
-    return 0.35;
+    return 0.50;
   }
 
   final elapsedDays = now.difference(forecastStartDate).inDays;
   final progress = (elapsedDays / totalDays).clamp(0.0, 1.0);
 
-  return (0.35 + (0.35 * progress)).clamp(0.35, 0.7);
+  return (0.50 + (0.50 * progress)).clamp(0.50, 0.9);
 }
 
 String forecastCatergory(double forecast) {
@@ -238,7 +238,7 @@ Color stateCardColor(double forecast) {
   } else if (forecast < 5) {
     return demorrep ? const Color(0xFF4389E3) : const Color(0xFFCC2F4A);
   } else if (forecast < 10) {
-    return demorrep ? const Color(0xFF0645B4) : const Color(0xFFAA0000);
+    return demorrep ? const Color(0xFF0650B4) : const Color(0xFFAA0000);
   } else {
     return demorrep ? const Color(0xFF002B84) : const Color(0xFF800000);
   }
