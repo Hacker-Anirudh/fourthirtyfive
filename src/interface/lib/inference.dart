@@ -12,7 +12,7 @@ class InferenceConfig {
   const InferenceConfig({
     this.modelPath = 'inference/model.json',
     this.inputPath = 'inference/current_stats',
-    this.fallbackMiseryIndex = 0.0,
+    this.fallbackMiseryIndex = -1.2,
   });
 
   final String modelPath;

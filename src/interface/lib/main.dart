@@ -9,6 +9,8 @@ import 'inference.dart';
 
 part 'logic.dart';
 
+final double miseryIndex = -1.2;
+
 void main() {
   runApp(const MyApp());
 }
@@ -148,6 +150,14 @@ class _MyHomePageState extends State<MyHomePage> {
             }
 
             final forecast = snapshot.data!;
+            final tiltStates = forecast.states.where((state) {
+              final currentPollingWeight = pollingWeight();
+              final displayedForecast = stateForecastValue(
+                state,
+                currentPollingWeight,
+              );
+              return displayedForecast.abs() < 2;
+            }).toList();
 
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -167,6 +177,51 @@ class _MyHomePageState extends State<MyHomePage> {
                     ballot: forecast.ballot,
                   ),
                   const SizedBox(height: 16),
+                  if (tiltStates.isNotEmpty) ...[
+                    Text(
+                      'Races to watch',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        for (final state in tiltStates)
+                          () {
+                            final displayedForecast = stateForecastValue(
+                              state,
+                              pollingWeight(),
+                            );
+                            final accentColor = stateCardColor(
+                              displayedForecast,
+                            );
+                            final textColor = textColorForAccent(accentColor);
+
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: accentColor,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '${state.stateCode} ${formatSignedPercent(displayedForecast)}',
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: textColor,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            );
+                          }(),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   Text(
                     'State forecasts',
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -397,22 +452,6 @@ class _ForecastSummaryCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    'Bundled data',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -434,6 +473,13 @@ class _ForecastSummaryCard extends StatelessWidget {
                 _SummaryMetric(
                   label: 'Generic ballot',
                   value: '${ballot.toStringAsFixed(1)}%',
+                ),
+                _SummaryMetric(
+                  label: 'Misery index',
+                  value: miseryIndex.toStringAsFixed(1),
+                ),
+                Text(
+                  'All negative values favor Republicans and all positive values favor Democrats (true values inverted as neccessary), misery index is the deviation from the historical mean.',
                 ),
               ],
             ),

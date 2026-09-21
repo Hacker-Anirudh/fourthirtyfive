@@ -65,7 +65,7 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
   );
 
   final result = await inferenceService.runInference({
-    'misery_index': 0.0,
+    'misery_index': miseryIndex,
     'approval_rating': approvalRating,
     'ballot': ballot,
   });
