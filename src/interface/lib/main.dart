@@ -378,22 +378,10 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
       ),
-      floatingActionButton: IconButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: widget.onThemeToggle,
         tooltip: 'Toggle color mode',
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.hovered)) {
-              return Theme.of(context).colorScheme.surfaceContainerHighest;
-            }
-            return Colors.transparent;
-          }),
-          shape: WidgetStateProperty.all(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          ),
-          padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
-        ),
-        icon: Icon(
+        child: Icon(
           widget.isDark ? Icons.brightness_2_outlined : Icons.wb_sunny_outlined,
         ),
       ),
