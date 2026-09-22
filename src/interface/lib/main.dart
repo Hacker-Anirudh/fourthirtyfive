@@ -98,6 +98,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 applicationVersion: '0.0.1',
               );
             },
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.hovered)) {
+                  return Theme.of(context).colorScheme.surfaceContainerHighest;
+                }
+                return Colors.transparent;
+              }),
+            ),
             icon: const Icon(Icons.info_outline),
           ),
         ],
@@ -370,10 +378,22 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: IconButton(
         onPressed: widget.onThemeToggle,
         tooltip: 'Toggle color mode',
-        child: Icon(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.hovered)) {
+              return Theme.of(context).colorScheme.surfaceContainerHighest;
+            }
+            return Colors.transparent;
+          }),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+          padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
+        ),
+        icon: Icon(
           widget.isDark ? Icons.brightness_2_outlined : Icons.wb_sunny_outlined,
         ),
       ),
@@ -480,6 +500,44 @@ class _ForecastSummaryCard extends StatelessWidget {
                 ),
                 Text(
                   'All negative values favor Republicans and all positive values favor Democrats (true values inverted as neccessary), misery index is the deviation from the historical mean.',
+                ),
+                IconButton(
+                  tooltip: 'Meaning of ratings',
+                  onPressed: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('How to read the forecast'),
+                        content: const SingleChildScrollView(
+                          child: Text(
+                            'Tilt D/R: margin under 2 percentage points. Pretty much a tossup\nLean D/R: margin of 2-5 percentage points. A party is clearly favored but upsets happen quite often.\nLikely D/R: margin of 5-10 percentage points. A party is very strongly favored and will only rarely be upset.\nSafe D/R: 10+ percentage points. The state is most often pretty much a one-party state and the other party winning is unheard of.',
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.hovered)) {
+                        return Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest;
+                      }
+                      return Colors.transparent;
+                    }),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  icon: Icon(Icons.info_outline_rounded),
                 ),
               ],
             ),
