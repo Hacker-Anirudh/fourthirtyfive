@@ -70,10 +70,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Future<_ForecastSnapshot> _forecastFuture;
+  final DateTime _forecastStartDate = DateTime(2026, 9, 12);
+  late DateTime _selectedDate;
+  final DateTime _electionDay = DateTime(2026, 11, 3);
 
   @override
   void initState() {
     super.initState();
+    _selectedDate = DateTime.now();
+    if (_selectedDate.isBefore(_forecastStartDate)) {
+      _selectedDate = _forecastStartDate;
+    }
+    if (_selectedDate.isAfter(_electionDay)) {
+      _selectedDate = _electionDay;
+    }
     _forecastFuture = _loadForecastSnapshot();
   }
 
@@ -159,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
             final forecast = snapshot.data!;
             final tiltStates = forecast.states.where((state) {
-              final currentPollingWeight = pollingWeight();
+              final currentPollingWeight = pollingWeightForDate(_selectedDate);
               final displayedForecast = stateForecastValue(
                 state,
                 currentPollingWeight,
@@ -169,77 +179,140 @@ class _MyHomePageState extends State<MyHomePage> {
 
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Senate outlook',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _ForecastSummaryCard(
-                    nationalLean: forecast.nationalLean,
-                    approvalRating: forecast.approvalRating,
-                    ballot: forecast.ballot,
-                  ),
-                  const SizedBox(height: 16),
-                  if (tiltStates.isNotEmpty) ...[
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      'Races to watch',
+                      'Senate outlook',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _ForecastSummaryCard(
+                      nationalLean: forecast.nationalLean,
+                      approvalRating: forecast.approvalRating,
+                      ballot: forecast.ballot,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Forecast date',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                'As time goes on polling is weighted more heavily, the slider is included so you can analyze how it would evolve if polling stayed the same.',
+                              ),
+                              Padding(padding: EdgeInsets.all(8.0)),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedDate = DateTime.now();
+                                  });
+                                },
+                                child: Text('Today'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _selectedDate.toLocal().toString().split(' ')[0],
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                          Slider(
+                            min: _forecastStartDate.millisecondsSinceEpoch
+                                .toDouble(),
+                            max: _electionDay.millisecondsSinceEpoch.toDouble(),
+                            value: _selectedDate.millisecondsSinceEpoch
+                                .toDouble(),
+                            divisions: _electionDay
+                                .difference(_forecastStartDate)
+                                .inDays,
+                            label: _selectedDate.toLocal().toString().split(
+                              ' ',
+                            )[0],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedDate =
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                      value.toInt(),
+                                    );
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (tiltStates.isNotEmpty) ...[
+                      Text(
+                        'Races to watch',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          for (final state in tiltStates)
+                            () {
+                              final displayedForecast = stateForecastValue(
+                                state,
+                                pollingWeightForDate(_selectedDate),
+                              );
+                              final accentColor = stateCardColor(
+                                displayedForecast,
+                              );
+                              final textColor = textColorForAccent(accentColor);
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: accentColor,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '${state.stateCode} ${formatSignedPercent(displayedForecast)}',
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: textColor,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              );
+                            }(),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    Text(
+                      'State forecasts',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        for (final state in tiltStates)
-                          () {
-                            final displayedForecast = stateForecastValue(
-                              state,
-                              pollingWeight(),
-                            );
-                            final accentColor = stateCardColor(
-                              displayedForecast,
-                            );
-                            final textColor = textColorForAccent(accentColor);
-
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: accentColor,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                '${state.stateCode} ${formatSignedPercent(displayedForecast)}',
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: textColor,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            );
-                          }(),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  Text(
-                    'State forecasts',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: GridView.builder(
+                    GridView.builder(
                       padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
                             maxCrossAxisExtent: 240,
@@ -250,7 +323,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemCount: forecast.states.length,
                       itemBuilder: (context, index) {
                         final state = forecast.states[index];
-                        final currentPollingWeight = pollingWeight();
+                        final currentPollingWeight = pollingWeightForDate(
+                          _selectedDate,
+                        );
                         final displayedForecast = stateForecastValue(
                           state,
                           currentPollingWeight,
@@ -371,8 +446,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         );
                       },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
