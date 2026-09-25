@@ -188,8 +188,8 @@ Future<List<_StatePviRow>> loadStatePviRows() async {
 double pollingWeight() => pollingWeightForDate(DateTime.now());
 
 double pollingWeightForDate(DateTime selectedDate) {
-  final forecastStartDate = DateTime(2026, 9, 12);
-  final electionDay = DateTime(2026, 11, 3);
+  final forecastStartDate = DateTime.utc(2026, 9, 12);
+  final electionDay = DateTime.utc(2026, 11, 3);
 
   final totalDays = electionDay.difference(forecastStartDate).inDays;
   if (totalDays <= 0) {

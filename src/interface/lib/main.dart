@@ -70,9 +70,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Future<_ForecastSnapshot> _forecastFuture;
-  final DateTime _forecastStartDate = DateTime(2026, 9, 12);
+  final DateTime _forecastStartDate = DateTime.utc(2026, 9, 12);
   late DateTime _selectedDate;
-  final DateTime _electionDay = DateTime(2026, 11, 3);
+  final DateTime _electionDay = DateTime.utc(2026, 11, 3);
 
   @override
   void initState() {
@@ -224,6 +224,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                   });
                                 },
                                 child: Text('Today'),
+                              ),
+                              Padding(padding: EdgeInsets.all(8.0)),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedDate = DateTime.utc(2026, 11, 3);
+                                  });
+                                },
+                                child: Text('Election day'),
                               ),
                             ],
                           ),
