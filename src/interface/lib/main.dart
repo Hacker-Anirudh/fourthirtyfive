@@ -501,11 +501,11 @@ class StateForecast {
   final double? pollingAverage;
 }
 
-class _StatePviRow {
-  const _StatePviRow({required this.stateCode, required this.pvi2022});
+class _StateRow {
+  const _StateRow({required this.stateCode, required this.val});
 
   final String stateCode;
-  final double pvi2022;
+  final double val;
 }
 
 class _ForecastSummaryCard extends StatelessWidget {

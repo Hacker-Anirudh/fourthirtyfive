@@ -73,16 +73,23 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
   final nationalLean = (result.data['prediction'] as num).toDouble();
 
   final pollingRows = await loadPollingRows();
-  final statePviRows = await loadStatePviRows();
+  final statePviRows = await loadStateRows('inference/state_pvi_midterms.csv');
+  final stateQualRows = await loadStateRows('inference/candidate_quality.csv');
+
+  final qualityByState = {
+    for (final row in stateQualRows) row.stateCode: row.val,
+  };
 
   final states = <StateForecast>[];
   for (final row in statePviRows) {
-    final calibration = (row.pvi2022 * 2) + nationalLean;
     final stateCode = row.stateCode;
+    final candidateQuality = qualityByState[stateCode] ?? 0.0;
+    final calibration = (row.val * 2) + nationalLean + candidateQuality;
+
     states.add(
       StateForecast(
         stateCode: stateCodeTranslation[stateCode] ?? stateCode,
-        pvi2022: row.pvi2022,
+        pvi2022: row.val,
         forecast: calibration,
         pollingAverage: pollingRows[stateCode],
       ),
@@ -158,15 +165,15 @@ Future<Map<String, double>> loadPollingRows() async {
 }
 
 // ignore: library_private_types_in_public_api
-Future<List<_StatePviRow>> loadStatePviRows() async {
-  final raw = await rootBundle.loadString('inference/state_pvi_midterms.csv');
+Future<List<_StateRow>> loadStateRows(String path) async {
+  final raw = await rootBundle.loadString(path);
   final rows = LineSplitter.split(raw)
       .map((line) => line.trim())
       .where((line) => line.isNotEmpty)
       .skip(1)
       .toList();
 
-  final data = <_StatePviRow>[];
+  final data = <_StateRow>[];
 
   for (final row in rows) {
     final values = row.split(',');
@@ -175,10 +182,10 @@ Future<List<_StatePviRow>> loadStatePviRows() async {
     }
 
     final stateCode = values[0].trim();
-    final pvi = double.tryParse(values[1].trim());
+    final val = double.tryParse(values[1].trim());
 
-    if (stateCode.isNotEmpty && pvi != null) {
-      data.add(_StatePviRow(stateCode: stateCode, pvi2022: pvi));
+    if (stateCode.isNotEmpty && val != null) {
+      data.add(_StateRow(stateCode: stateCode, val: val));
     }
   }
 
