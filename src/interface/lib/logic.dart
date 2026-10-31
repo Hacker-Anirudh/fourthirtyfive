@@ -1,8 +1,23 @@
 part of 'main.dart';
 
-Future<_ForecastSnapshot> _loadForecastSnapshot() async {
-  final approvalRating = await loadApprovalRating();
-  final ballot = await loadBallot();
+Future<_ForecastSnapshot> _loadForecastSnapshot({
+  bool government = false,
+}) async {
+  final statsPath = government
+      ? 'inference/governor_current_stats'
+      : 'inference/current_stats';
+  final pollingPath = government
+      ? 'inference/governor_current_polling.csv'
+      : 'inference/current_polling.csv';
+  final pviPath = government
+      ? 'inference/governor_state_pvi_midterms.csv'
+      : 'inference/state_pvi_midterms.csv';
+  final qualityPath = government
+      ? 'inference/governor_candidate_quality.csv'
+      : 'inference/candidate_quality.csv';
+
+  final approvalRating = await loadApprovalRating(path: statsPath);
+  final ballot = await loadBallot(path: statsPath);
 
   final Map<String, String> stateCodeTranslation = {
     'AL': 'Alabama',
@@ -72,9 +87,9 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
 
   final nationalLean = (result.data['prediction'] as num).toDouble();
 
-  final pollingRows = await loadPollingRows();
-  final statePviRows = await loadStateRows('inference/state_pvi_midterms.csv');
-  final stateQualRows = await loadStateRows('inference/candidate_quality.csv');
+  final pollingRows = await loadPollingRows(path: pollingPath);
+  final statePviRows = await loadStateRows(pviPath);
+  final stateQualRows = await loadStateRows(qualityPath);
 
   final qualityByState = {
     for (final row in stateQualRows) row.stateCode: row.val,
@@ -92,6 +107,7 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
         pvi2022: row.val,
         forecast: calibration,
         pollingAverage: pollingRows[stateCode],
+        candidateQuality: candidateQuality,
       ),
     );
   }
@@ -106,8 +122,10 @@ Future<_ForecastSnapshot> _loadForecastSnapshot() async {
   );
 }
 
-Future<double> loadApprovalRating() async {
-  final currentStats = await rootBundle.loadString('inference/current_stats');
+Future<double> loadApprovalRating({
+  String path = 'inference/current_stats',
+}) async {
+  final currentStats = await rootBundle.loadString(path);
   final lines = LineSplitter.split(
     currentStats,
   ).map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
@@ -122,8 +140,8 @@ Future<double> loadApprovalRating() async {
   return approval;
 }
 
-Future<double> loadBallot() async {
-  final currentStats = await rootBundle.loadString('inference/current_stats');
+Future<double> loadBallot({String path = 'inference/current_stats'}) async {
+  final currentStats = await rootBundle.loadString(path);
   final lines = LineSplitter.split(
     currentStats,
   ).map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
@@ -138,8 +156,10 @@ Future<double> loadBallot() async {
   return ballot;
 }
 
-Future<Map<String, double>> loadPollingRows() async {
-  final raw = await rootBundle.loadString('inference/current_polling.csv');
+Future<Map<String, double>> loadPollingRows({
+  String path = 'inference/current_polling.csv',
+}) async {
+  final raw = await rootBundle.loadString(path);
   final rows = LineSplitter.split(raw)
       .map((line) => line.trim())
       .where((line) => line.isNotEmpty)
@@ -289,7 +309,18 @@ Future<String> fetchInfoBox(String pageTitle) async {
   }
 }
 
-void showElectionPopup(BuildContext context, String pageTitle) {
+void showElectionPopup(
+  BuildContext context,
+  String pageTitle, {
+  StateForecast? stateForecast,
+  double? nationalLean,
+  double? pollingWeight,
+}) {
+  final baselineForecast = stateForecast?.forecast ?? 0.0;
+  final pollingOffset = stateForecast != null && pollingWeight != null
+      ? stateForecastValue(stateForecast, pollingWeight) - baselineForecast
+      : null;
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -297,7 +328,54 @@ void showElectionPopup(BuildContext context, String pageTitle) {
         contentPadding: const EdgeInsets.all(12.0),
         content: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (stateForecast != null && nationalLean != null) ...[
+                Container(
+                  width: 550,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Forecast offsets',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 8),
+                      _OffsetRow(label: 'National lean', value: nationalLean),
+                      _OffsetRow(
+                        label: 'PVI baseline',
+                        value: stateForecast.pvi2022 * 2.0,
+                      ),
+                      _OffsetRow(
+                        label: 'Candidate quality',
+                        value: stateForecast.candidateQuality,
+                      ),
+                      if (pollingOffset != null)
+                        _OffsetRow(
+                          label: 'Polling adjustment',
+                          value: pollingOffset,
+                        ),
+                      const Divider(height: 20),
+                      _OffsetRow(
+                        label: 'Result',
+                        value: stateForecastValue(
+                          stateForecast,
+                          pollingWeight ?? 0.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               SizedBox(
                 width: 550,
                 child: FutureBuilder(
@@ -341,4 +419,30 @@ void showElectionPopup(BuildContext context, String pageTitle) {
       );
     },
   );
+}
+
+class _OffsetRow extends StatelessWidget {
+  const _OffsetRow({required this.label, required this.value});
+
+  final String label;
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label),
+          Text(
+            formatSignedPercent(value),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
 }
