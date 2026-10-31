@@ -539,7 +539,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 showElectionPopup(
                                   context,
                                   _isGovernmentForecast
-                                      ? '2026_United_States_gubernatorial_election_in_${state.stateCode}'
+                                      ? '2026_${state.stateCode}_gubernatorial_election'
                                       : '2026_United_States_Senate_election_in_${state.stateCode}',
                                   stateForecast: state,
                                   nationalLean: forecast.nationalLean,
@@ -628,13 +628,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                     const SizedBox(height: 10),
                                     Text(
-                                      '2022 PVI',
+                                      'PVI',
                                       style: theme.textTheme.labelSmall
                                           ?.copyWith(color: textColor),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      formatSignedPercent(state.pvi2022),
+                                      formatSignedPercent(state.pvi),
                                       style: theme.textTheme.bodyMedium
                                           ?.copyWith(
                                             fontWeight: FontWeight.w600,
@@ -709,14 +709,14 @@ class _ForecastSnapshot {
 class StateForecast {
   const StateForecast({
     required this.stateCode,
-    required this.pvi2022,
+    required this.pvi,
     required this.forecast,
     required this.pollingAverage,
     required this.candidateQuality,
   });
 
   final String stateCode;
-  final double pvi2022;
+  final double pvi;
   final double forecast;
   final double? pollingAverage;
   final double candidateQuality;
@@ -865,8 +865,8 @@ class _ComparisonStatePanel extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _ComparisonMetric(
-            label: '2022 PVI',
-            value: formatSignedPercent(state.pvi2022),
+            label: 'PVI',
+            value: formatSignedPercent(state.pvi),
             textColor: textColor,
           ),
           const SizedBox(height: 8),

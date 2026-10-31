@@ -94,13 +94,15 @@ Future<_ForecastSnapshot> _loadForecastSnapshot({
   final states = <StateForecast>[];
   for (final row in statePviRows) {
     final stateCode = row.stateCode;
+    if (!qualityByState.containsKey(stateCode)) continue;
+
     final candidateQuality = qualityByState[stateCode] ?? 0.0;
     final calibration = (row.val * 2) + nationalLean + candidateQuality;
 
     states.add(
       StateForecast(
         stateCode: stateCodeTranslation[stateCode] ?? stateCode,
-        pvi2022: row.val,
+        pvi: row.val,
         forecast: calibration,
         pollingAverage: pollingRows[stateCode],
         candidateQuality: candidateQuality,
@@ -348,7 +350,7 @@ void showElectionPopup(
                       _OffsetRow(label: 'National lean', value: nationalLean),
                       _OffsetRow(
                         label: 'PVI baseline',
-                        value: stateForecast.pvi2022 * 2.0,
+                        value: stateForecast.pvi * 2.0,
                       ),
                       _OffsetRow(
                         label: 'Candidate quality',
