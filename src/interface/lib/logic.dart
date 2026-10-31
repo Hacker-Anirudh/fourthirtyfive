@@ -3,15 +3,11 @@ part of 'main.dart';
 Future<_ForecastSnapshot> _loadForecastSnapshot({
   bool government = false,
 }) async {
-  final statsPath = government
-      ? 'inference/governor_current_stats'
-      : 'inference/current_stats';
+  final statsPath = 'inference/current_stats';
   final pollingPath = government
       ? 'inference/governor_current_polling.csv'
       : 'inference/current_polling.csv';
-  final pviPath = government
-      ? 'inference/governor_state_pvi_midterms.csv'
-      : 'inference/state_pvi_midterms.csv';
+  final pviPath = 'inference/state_pvi_midterms.csv';
   final qualityPath = government
       ? 'inference/governor_candidate_quality.csv'
       : 'inference/candidate_quality.csv';

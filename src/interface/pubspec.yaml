@@ -67,9 +67,7 @@ flutter:
     - inference/current_polling.csv
     - inference/state_pvi_midterms.csv
     - inference/candidate_quality.csv
-    - inference/governor_current_stats
     - inference/governor_current_polling.csv
-    - inference/governor_state_pvi_midterms.csv
     - inference/governor_candidate_quality.csv
 
   # An image asset can refer to one or more resolution-specific "variants", see

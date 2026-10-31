@@ -98,20 +98,22 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    if (_leftCompareState == null ||
-        !states.any(
-          (state) => state.stateCode == _leftCompareState!.stateCode,
-        )) {
-      _leftCompareState = states.first;
-    }
+    final selectedLeftCode = _leftCompareState?.stateCode;
+    _leftCompareState = states.firstWhere(
+      (state) => state.stateCode == selectedLeftCode,
+      orElse: () => states.first,
+    );
 
-    if (_rightCompareState == null ||
-        _rightCompareState!.stateCode == _leftCompareState!.stateCode ||
-        !states.any(
-          (state) => state.stateCode == _rightCompareState!.stateCode,
-        )) {
-      _rightCompareState = states.length > 1 ? states[1] : states.first;
-    }
+    final selectedRightCode = _rightCompareState?.stateCode;
+    _rightCompareState = states.firstWhere(
+      (state) =>
+          state.stateCode == selectedRightCode &&
+          state.stateCode != _leftCompareState!.stateCode,
+      orElse: () => states.firstWhere(
+        (state) => state.stateCode != _leftCompareState!.stateCode,
+        orElse: () => _leftCompareState!,
+      ),
+    );
   }
 
   @override
