@@ -493,11 +493,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     Text(
                       _isGovernmentForecast
                           ? 'Governor forecasts'
-                          : 'State forecasts',
+                          : 'Senate forecasts',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(height: 2),
+                    Text("Click on a race to get more information."),
                     const SizedBox(height: 12),
                     if (!_isCompareMode)
                       GridView.builder(
@@ -981,9 +983,6 @@ class _ForecastSummaryCard extends StatelessWidget {
                   label: 'Misery index',
                   value: miseryIndex.toStringAsFixed(1),
                 ),
-                Text(
-                  'All negative values favor Republicans and all positive values favor Democrats (true values inverted as neccessary), misery index is the deviation from the historical mean.',
-                ),
                 IconButton(
                   tooltip: 'Meaning of ratings',
                   onPressed: () {
@@ -1023,6 +1022,10 @@ class _ForecastSummaryCard extends StatelessWidget {
                   icon: Icon(Icons.info_outline_rounded),
                 ),
               ],
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'All negative values favor Republicans and all positive values favor Democrats (true values inverted as neccessary), misery index is the deviation from the historical mean.',
             ),
           ],
         ),
