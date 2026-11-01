@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 applicationName: 'FourThirtyFive',
                 applicationLegalese:
                     'BSD 3-Clause license. Copyright 2020-2026 Anirudh Menon. All rights reserved.',
-                applicationVersion: '0.0.1',
+                applicationVersion: '1.0',
               );
             },
             style: ButtonStyle(
