@@ -4,7 +4,7 @@ My attempt at predicting the results of the 2026 United States general election 
 If you have a better idea for the naming, please tell me.
 
 # Current scope
-After considering it, I decided not to include House elections. This is both because I'm lazy and because in a highly polarized midterm like this I don't think they'd diverge much from the upballot races. It still includes seperate Governor and Senate predictions since Senate races are more nationalized and more importantly, they're both prominent enough that a big scandal can affect them significantly (see the Vivek Ramaswamy ad-scandel for example).
+After considering it, I decided not to include House elections. This is both because I'm lazy and because in a highly polarized midterm like this I don't think they'd diverge much from the upballot races. It still includes seperate Governor and Senate predictions since Senate races are more nationalized and more importantly, they're both prominent enough that a big scandal can affect them significantly (see the Vivek Ramaswamy ad-scandel for example). Try it out [here](https://fourthirtyfive.sudothelinuxwizard.com/).
 
 # Model architecture
 This project is a two-part system:
