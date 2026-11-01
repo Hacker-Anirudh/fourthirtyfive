@@ -4,24 +4,27 @@ My attempt at predicting the results of the 2026 United States general election 
 If you have a better idea for the naming, please tell me.
 
 # Current scope
-At present, this project only predicts the results of the US Senate races, as I believe them to be the most interesting. If this is well received and after further feedback I will be adding gubernatorial/House races as well, using the same general style and methodology (in fact, the national_lean model itself can be reused).
+After considering it, I decided not to include House elections. This is both because I'm lazy and because in a highly polarized midterm like this I don't think they'd diverge much from the upballot races. It still includes seperate Governor and Senate predictions since Senate races are more nationalized and more importantly, they're both prominent enough that a big scandal can affect them significantly (see the Vivek Ramaswamy ad-scandel for example).
 
 # Model architecture
 This project is a two-part system:
 
 - A Python forecasting pipeline that turns historical political and economic data into a national lean estimate.
-- A Flutter dashboard that consumes the model output and visualizes state-by-state forecasts with a date-based polling weighting adjustment.
+- A Flutter dashboard (Material Design) that consumes the model output and visualizes state-by-state forecasts with a date-based polling weighting adjustment.
 
 ## Rough forecast logic
 The implementation follows a simple structure:
 
 - National lean:
   - lean = intercept + w1 * misery_index + w2 * approval_rating + w3 * generic_ballot
+  - The model itself is a simple ridge regressor.
 
 - State-level forecast:
   - state_margin = (2 * pvi_2022) + national_lean + candidate_quality + polling_adjustment
 
 This is intentionally lightweight and explainable: the model is not trying to be a huge black box. It is a transparent forecast system built from macroeconomic conditions, partisan baseline, and polling pressure as election day nears.
+
+A flaw I've noted is that the national lean model weights the two factors besides generic ballot extremely lightly, which makes the whole model sort of redundant, however, I don't believe it makes accuracy worse, so I kept it.
 
 ## Repository layout
 
