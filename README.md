@@ -6,6 +6,8 @@ If you have a better idea for the naming, please tell me.
 # Current scope
 After considering it, I decided not to include House elections. This is both because I'm lazy and because in a highly polarized midterm like this I don't think they'd diverge much from the upballot races. It still includes seperate Governor and Senate predictions since Senate races are more nationalized and more importantly, they're both prominent enough that a big scandal can affect them significantly (see the Vivek Ramaswamy ad-scandel for example). Try it out [here](https://fourthirtyfive.sudothelinuxwizard.com/).
 
+The reason it may seem that states are "missing" from the prediction is because unlike a presidential race, senatorial and gubernatorial elections are not all held on the same year. For example, Arkansas holds their gubernatorial election every midterm, North Carolina holds theirs with every presidential race, and Virginia holds them the year after each presidential year. Same things goes for senatorial races, because senators are elected in three "classes", so every 2 years only 1/3rd of seats face an election barring special elections.
+
 # Model architecture
 This project is a two-part system:
 
